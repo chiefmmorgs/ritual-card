@@ -1,0 +1,209 @@
+Ritualist ID Card Generator
+
+Deliverable
+One file: index.html with embedded CSS and vanilla JS. No external libs. Runs locally. Exports a crisp PNG.
+
+Goal
+Build a single-page site that lets a user:
+
+enter name
+
+choose two roles: Core Role and Aura Role
+
+auto-include the Encore Role “Pledged” on every card
+
+pick Date of Join
+
+upload a photo (center-crop to a circle avatar)
+
+live-preview the ID card
+
+download the result as a PNG at 2× scale
+
+Brand
+Monochrome ritual theme. Gritty grayscale, high contrast white text, faint film grain. 
+
+
+Roles
+Core roles (select one):
+
+mage
+
+ritualist
+
+ritualist ascendant
+
+node runner
+
+Aura roles (select one):
+
+initiate
+
+blessed
+
+cursed
+
+harmonic
+
+Encore role (always present, not selectable):
+
+pledged
+
+Visual system
+Site shell
+
+Full-bleed dark gradient background #0A0B0C to #151A1E
+
+Subtle repeating Ritual pattern (CSS only)
+
+Film-grain overlay at 8–10 percent opacity
+
+Header: “RITUALIST ID CARD GENERATOR”, small subline “LET THE RITUAL BEGIN”
+
+Content container max-width 1200
+
+Card canvas area
+
+Single live preview canvas 1200×450 logical px (render 2400×900 for export)
+
+Rounded corners 24, soft inner glow, thin separators
+
+Left: circular avatar 140 px with double ring and subtle glow
+
+Right: info grid
+Username
+Date of Join label and value
+Role line shows “Core • Aura • Pledged”
+Portfolio input optional; if empty, hide the field
+
+Watermark sigil at 10 percent opacity
+
+Always show a small “Pledged” chip bottom-right (56 px, neon yellow-green #B7FF3C on charcoal)
+
+Energy-wave body
+
+Flowing plasma background like the reference wave image
+
+Implement with SVG filters (feTurbulence + feDisplacementMap) or canvas gradients
+
+Node Runner adds tech grid and scanline sweep
+
+Aura applies a tint and effect per rules below
+
+Palettes
+Core base gradients
+
+mage: #6C42FF → #FF3FD1
+
+ritualist: #DADADA → #FFFFFF (accent #FFB347)
+
+ritualist ascendant: #9AD8FF → #FF8EE3
+
+node runner: #00D1FF → #6A5CFF, grid lines #1B2026, HUD text #8FA6B8 at 40 percent
+
+Aura tints and effects
+
+initiate: tint #9AA3AD, opacity 0.18, blend soft-light
+
+blessed: tints #FFD166 → #FFF7E6, opacity 0.28, blend soft-light, add gentle bloom
+
+cursed: tints #00FF95 and #7A2DFF, opacity 0.42, blend color-burn, add vignette and light chromatic fray
+
+harmonic: tints #66E3FF → #BD7CFF, opacity 0.34, blend screen, add subtle RGB split
+
+Encore layer
+
+pledged: always on
+
+chip color #B7FF3C, pulse scale 0.98–1.02 over 4 s
+
+faint binding lines using a low-opacity noise mask
+
+Form controls
+Inputs under the canvas in a rounded toolbar:
+
+Name [text] placeholder “e.g. Elliott Yu”
+
+Core Role [select] values: mage, ritualist, ritualist ascendant, node runner
+
+Aura Role [select] values: initiate, blessed, cursed, harmonic
+
+Portfolio [text] placeholder “e.g. Educator” (optional)
+
+Date of Join [date] shown on card as YYYY-MM-DD
+
+Upload Photo [file] accept images; center-crop to square; mask to circle
+
+Download PNG [button]
+
+Reset [text link]
+
+Export 2× sheet [text link] optional
+
+Behavior
+
+Any input change updates the preview instantly
+
+Date displayed as YYYY-MM-DD regardless of locale
+
+Core + Aura drive the theme; Pledged always appended in the Role line and chip layer
+
+Node Runner adds grid + scanline sweep every 6 s at 6 percent opacity
+
+Download exports a PNG named ritualist-id-card.png, 2× scale, sharp text
+
+Optional Export 2× sheet renders four variants of the same data:
+
+Core+current Aura
+
+Core+blessed
+
+Core+cursed
+
+Core+harmonic
+
+Accessibility
+
+Labels bound to inputs with for/id
+
+Visible focus rings
+
+Contrast AA or better
+
+Prefers-reduced-motion respected: disable grain animation and scanline
+
+Code structure
+
+index.html with sections: header, main (preview, controls), footer
+
+CSS variables at :root for palette tokens
+
+JS modules inside a single <script>:
+state = { name, coreRole, auraRole, pledged: true, portfolio, dateISO, avatar }
+palette map for roles
+resolveTheme(core, aura) → computed CSS vars + flags
+renderCard(ctx, state, theme)
+loadAvatar(file) → HTMLImageElement
+formatDate(inputValue) → YYYY-MM-DD
+downloadCanvasPNG(canvas, filename)
+optional exportSheet()
+
+Exact element ids
+
+#previewStage holds <canvas id="cardCanvas">
+
+#nameInput, #coreRoleSelect, #auraRoleSelect, #portfolioInput, #dateInput, #photoInput
+
+#downloadBtn, #resetLink, #exportSheetLink
+
+Default values for testing
+
+Name: “Elliottyu”
+
+Core Role: ritualist
+
+Aura Role: harmonic
+
+Portfolio: “Educator”
+
+Date: today
