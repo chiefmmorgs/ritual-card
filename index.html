@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ritualist ID Card Generator</title>
+    <style>
+        :root {
+            --bg-dark-start: #0A0B0C;
+            --bg-dark-end: #151A1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8FA6B8;
+            --card-bg: #1A1D23;
+            --pledged-color: #B7FF3C;
+            --border-subtle: #2A2D35;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(180deg, var(--bg-dark-start) 0%, var(--bg-dark-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.01) 35px, rgba(255,255,255,.01) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,.01) 35px, rgba(255,255,255,.01) 70px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body::after {
+                animation: none !important;
+            }
+            .pledged-chip {
+                animation: none !important;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            letter-spacing: 0.15em;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        #previewStage {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #cardCanvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 40px rgba(255,255,255,0.03);
+        }
+
+        .controls {
+            background: rgba(26, 29, 35, 0.6);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--pledged-color);
+            box-shadow: 0 0 0 3px rgba(183, 255, 60, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: var(--pledged-color);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--pledged-color);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(183, 255, 60, 0.3);
+        }
+
+        button:focus {
+            outline: 3px solid rgba(183, 255, 60, 0.5);
+            outline-offset: 2px;
+        }
+
+        a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--pledged-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Ritualist ID Card Generator</h1>
+            <div class="subtitle">LET THE RITUAL BEGIN</div>
+            <div class="tagline">Generate your Ritualist identity for community use</div>
+        </header>
+
+        <div id="previewStage">
+            <canvas id="cardCanvas" width="2400" height="900"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="nameInput">Name</label>
+                    <input type="text" id="nameInput" placeholder="e.g. Elliott Yu" value="Elliottyu">
+                </div>
+
+                <div class="form-group">
+                    <label for="coreRoleSelect">Core Role</label>
+                    <select id="coreRoleSelect">
+                        <option value="mage">Mage</option>
+                        <option value="ritualist" selected>Ritualist</option>
+                        <option value="ritualist ascendant">Ritualist Ascendant</option>
+                        <option value="node runner">Node Runner</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="auraRoleSelect">Aura Role</label>
+                    <select id="auraRoleSelect">
+                        <option value="initiate">Initiate</option>
+                        <option value="blessed">Blessed</option>
+                        <option value="cursed">Cursed</option>
+                        <option value="harmonic" selected>Harmonic</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="portfolioInput">Portfolio (Optional)</label>
+                    <input type="text" id="portfolioInput" placeholder="e.g. Educator" value="Educator">
+                </div>
+
+                <div class="form-group">
+                    <label for="dateInput">Date of Join</label>
+                    <input type="date" id="dateInput">
+                </div>
+
+                <div class="form-group">
+                    <label for="photoInput">Upload Photo</label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="downloadBtn">Download PNG</button>
+                <a href="#" id="resetLink">Reset</a>
+                <a href="#" id="exportSheetLink">Export 2× Sheet</a>
+            </div>
+        </div>
+
+        <footer>
+            For entertainment and community use only
+        </footer>
+    </div>
+
+    <script>
+        const state = {
+            name: 'Elliottyu',
+            coreRole: 'ritualist',
+            auraRole: 'harmonic',
+            pledged: true,
+            portfolio: 'Educator',
+            dateISO: new Date().toISOString().split('T')[0],
+            avatar: null
+        };
+
+        const palettes = {
+            mage: { start: '#6C42FF', end: '#FF3FD1' },
+            ritualist: { start: '#DADADA', end: '#FFFFFF', accent: '#FFB347' },
+            'ritualist ascendant': { start: '#9AD8FF', end: '#FF8EE3' },
+            'node runner': { start: '#00D1FF', end: '#6A5CFF', grid: '#1B2026', hud: '#8FA6B8' }
+        };
+
+        const auraTints = {
+            initiate: { colors: ['#9AA3AD'], opacity: 0.18, blend: 'soft-light' },
+            blessed: { colors: ['#FFD166', '#FFF7E6'], opacity: 0.28, blend: 'soft-light', bloom: true },
+            cursed: { colors: ['#00FF95', '#7A2DFF'], opacity: 0.42, blend: 'color-burn', vignette: true },
+            harmonic: { colors: ['#66E3FF', '#BD7CFF'], opacity: 0.34, blend: 'screen', rgbSplit: true }
+        };
+
+        const ritualLogoSVG = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M100 40 L120 60 L100 80 L80 60 Z'/%3E%3Cpath d='M60 80 L80 100 L60 120 L40 100 Z'/%3E%3Cpath d='M140 80 L160 100 L140 120 L120 100 Z'/%3E%3Cpath d='M100 120 L120 140 L100 160 L80 140 Z'/%3E%3Cpath d='M80 60 L100 80 L80 100 L60 80 Z'/%3E%3Cpath d='M120 60 L140 80 L120 100 L100 80 Z'/%3E%3Cpath d='M80 100 L100 120 L80 140 L60 120 Z'/%3E%3Cpath d='M120 100 L140 120 L120 140 L100 120 Z'/%3E%3C/g%3E%3C/svg%3E`;
+
+        const canvas = document.getElementById('cardCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resolveTheme(core, aura) {
+            const palette = palettes[core];
+            const tint = auraTints[aura];
+            return {
+                palette,
+                tint,
+                isNodeRunner: core === 'node runner'
+            };
+        }
+
+        function drawPlasmaBackground(ctx, theme, width, height, timestamp = 0) {
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, theme.palette.start);
+            gradient.addColorStop(1, theme.palette.end);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            const waveGradient = ctx.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, width * 0.6);
+            waveGradient.addColorStop(0, 'rgba(255,255,255,0.2)');
+            waveGradient.addColorStop(0.5, 'rgba(255,255,255,0.05)');
+            waveGradient.addColorStop(1, 'rgba(0,0,0,0.3)');
+            ctx.fillStyle = waveGradient;
+            ctx.fillRect(0, 0, width, height);
+
+            for (let i = 0; i < 3; i++) {
+                const offset = (timestamp * 0.0005 + i * 0.3) % 1;
+                const waveY = height * 0.5 + Math.sin(offset * Math.PI * 2) * height * 0.2;
+                const waveGrad = ctx.createLinearGradient(0, waveY - 100, 0, waveY + 100);
+                waveGrad.addColorStop(0, 'rgba(255,255,255,0)');
+                waveGrad.addColorStop(0.5, `rgba(255,255,255,${0.1 - i * 0.03})`);
+                waveGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = waveGrad;
+                ctx.fillRect(0, waveY - 100, width, 200);
+            }
+        }
+
+        function applyAuraTint(ctx, theme, width, height) {
+            if (!theme.tint) return;
+
+            const tint = theme.tint;
+            ctx.globalAlpha = tint.opacity;
+            ctx.globalCompositeOperation = tint.blend;
+
+            if (tint.colors.length === 1) {
+                ctx.fillStyle = tint.colors[0];
+                ctx.fillRect(0, 0, width, height);
+            } else {
+                const grad = ctx.createLinearGradient(0, 0, width, height);
+                grad.addColorStop(0, tint.colors[0]);
+                grad.addColorStop(1, tint.colors[1]);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+
+            if (tint.vignette) {
+                const vigGrad = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width * 0.7);
+                vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+                vigGrad.addColorStop(1, 'rgba(0,0,0,0.6)');
+                ctx.fillStyle = vigGrad;
+                ctx.fillRect(0, 0, width, height);
+            }
+        }
+
+        function drawNodeRunnerEffects(ctx, width, height, timestamp = 0) {
+            ctx.strokeStyle = palettes['node runner'].grid;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.3;
+
+            const gridSize = 80;
+            for (let x = 0; x < width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+            const scanlineY = ((timestamp * 0.0003) % 1) * height;
+            ctx.globalAlpha = 0.06;
+            const scanGrad = ctx.createLinearGradient(0, scanlineY - 40, 0, scanlineY + 40);
+            scanGrad.addColorStop(0, 'rgba(0,209,255,0)');
+            scanGrad.addColorStop(0.5, 'rgba(0,209,255,1)');
+            scanGrad.addColorStop(1, 'rgba(0,209,255,0)');
+            ctx.fillStyle = scanGrad;
+            ctx.fillRect(0, scanlineY - 40, width, 80);
+
+            ctx.globalAlpha = 1;
+        }
+
+        function drawAvatar(ctx, x, y, radius, avatar) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
+            if (avatar) {
+                const size = Math.max(avatar.width, avatar.height);
+                const scale = (radius * 2) / size;
+                const sw = avatar.width;
+                const sh = avatar.height;
+                const sx = 0;
+                const sy = 0;
+                const dw = sw * scale;
+                const dh = sh * scale;
+                const dx = x - dw / 2;
+                const dy = y - dh / 2;
+                ctx.drawImage(avatar, sx, sy, sw, sh, dx, dy, dw, dh);
+            } else {
+                ctx.fillStyle = '#2A2D35';
+                ctx.fill();
+            }
+
+            ctx.restore();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 12, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.shadowColor = 'rgba(255,255,255,0.4)';
+            ctx.shadowBlur = 20;
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawRitualLogo(ctx, x, y, size) {
+            const img = new Image();
+            img.src = ritualLogoSVG;
+            ctx.globalAlpha = 0.1;
+            ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
+            ctx.globalAlpha = 1;
+        }
+
+        function drawPledgedChip(ctx, x, y, timestamp = 0) {
+            const scale = 0.98 + Math.sin(timestamp * 0.001) * 0.02;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            ctx.fillStyle = '#B7FF3C';
+            ctx.beginPath();
+            ctx.roundRect(-56, -28, 112, 56, 12);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('PLEDGED', 0, 0);
+
+            ctx.restore();
+        }
+
+        function renderCard(ctx, state, theme, timestamp = Date.now()) {
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            drawPlasmaBackground(ctx, theme, width, height, timestamp);
+
+            if (theme.isNodeRunner) {
+                drawNodeRunnerEffects(ctx, width, height, timestamp);
+            }
+
+            applyAuraTint(ctx, theme, width, height);
+
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            const logoImg = new Image();
+            logoImg.onload = () => {
+                ctx.globalAlpha = 0.1;
+                const logoSize = 300;
+                ctx.drawImage(logoImg, width - logoSize - 100, height / 2 - logoSize / 2, logoSize, logoSize);
+                ctx.globalAlpha = 1;
+            };
+            logoImg.src = ritualLogoSVG;
+
+            const avatarX = 350;
+            const avatarY = height / 2;
+            const avatarRadius = 140;
+            drawAvatar(ctx, avatarX, avatarY, avatarRadius, state.avatar);
+
+            const textX = 650;
+            const textY = 200;
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 96px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(state.name, textX, textY);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '42px sans-serif';
+            ctx.fillText(`Date of Join  ${state.dateISO}`, textX, textY + 140);
+
+            const roleText = `${state.coreRole} - ${state.auraRole}`;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '48px sans-serif';
+            ctx.fillText(roleText, textX, textY + 230);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '42px sans-serif';
+            ctx.fillText('pledged', textX, textY + 300);
+
+            if (state.portfolio) {
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = '36px sans-serif';
+                ctx.fillText(state.portfolio, textX, textY + 370);
+            }
+
+            drawPledgedChip(ctx, width - 150, height - 100, timestamp);
+        }
+
+        function updateCard() {
+            const theme = resolveTheme(state.coreRole, state.auraRole);
+            renderCard(ctx, state, theme);
+        }
+
+        function loadAvatar(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        resolve(img);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function formatDate(inputValue) {
+            return inputValue;
+        }
+
+        function downloadCanvasPNG(canvas, filename) {
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function exportSheet() {
+            const sheetCanvas = document.createElement('canvas');
+            sheetCanvas.width = 2400;
+            sheetCanvas.height = 3600;
+            const sheetCtx = sheetCanvas.getContext('2d');
+
+            const auras = ['initiate', 'blessed', 'cursed', 'harmonic'];
+            const originalAura = state.auraRole;
+
+            auras.forEach((aura, index) => {
+                state.auraRole = aura;
+                const theme = resolveTheme(state.coreRole, state.auraRole);
+                
+                sheetCtx.save();
+                sheetCtx.translate(0, index * 900);
+                renderCard(sheetCtx, state, theme);
+                sheetCtx.restore();
+            });
+
+            state.auraRole = originalAura;
+            updateCard();
+
+            downloadCanvasPNG(sheetCanvas, 'ritualist-id-card-sheet.png');
+        }
+
+        document.getElementById('nameInput').addEventListener('input', (e) => {
+            state.name = e.target.value || 'Elliottyu';
+            updateCard();
+        });
+
+        document.getElementById('coreRoleSelect').addEventListener('change', (e) => {
+            state.coreRole = e.target.value;
+            updateCard();
+        });
+
+        document.getElementById('auraRoleSelect').addEventListener('change', (e) => {
+            state.auraRole = e.target.value;
+            updateCard();
+        });
+
+        document.getElementById('portfolioInput').addEventListener('input', (e) => {
+            state.portfolio = e.target.value;
+            updateCard();
+        });
+
+        document.getElementById('dateInput').addEventListener('change', (e) => {
+            state.dateISO = formatDate(e.target.value);
+            updateCard();
+        });
+
+        document.getElementById('photoInput').addEventListener('change', async (e) => {
+            if (e.target.files && e.target.files[0]) {
+                state.avatar = await loadAvatar(e.target.files[0]);
+                updateCard();
+            }
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            downloadCanvasPNG(canvas, 'ritualist-id-card.png');
+        });
+
+        document.getElementById('resetLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            state.name = 'Elliottyu';
+            state.coreRole = 'ritualist';
+            state.auraRole = 'harmonic';
+            state.portfolio = 'Educator';
+            state.dateISO = new Date().toISOString().split('T')[0];
+            state.avatar = null;
+
+            document.getElementById('nameInput').value = state.name;
+            document.getElementById('coreRoleSelect').value = state.coreRole;
+            document.getElementById('auraRoleSelect').value = state.auraRole;
+            document.getElementById('portfolioInput').value = state.portfolio;
+            document.getElementById('dateInput').value = state.dateISO;
+            document.getElementById('photoInput').value = '';
+
+            updateCard();
+        });
+
+        document.getElementById('exportSheetLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            exportSheet();
+        });
+
+        document.getElementById('dateInput').value = state.dateISO;
+
+        updateCard();
+
+        setInterval(() => {
+            const theme = resolveTheme(state.coreRole, state.auraRole);
+            renderCard(ctx, state, theme, Date.now());
+        }, 50);
+    </script>
+</body>
+</html>
