@@ -240,6 +240,19 @@
             font-size: 0.875rem;
             opacity: 0.6;
         }
+
+        .made-by-logo {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            opacity: 0.5;
+            z-index: 100;
+        }
+
+        .made-by-logo img {
+            width: 180px;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -308,6 +321,10 @@
         <footer>
             For entertainment and community use only
         </footer>
+        
+        <div class="made-by-logo">
+            <img src="attached_assets/chiefmmorgs_extrabold_transparent_1759657966154.png" alt="Made by">
+        </div>
     </div>
 
     <script>
@@ -580,15 +597,6 @@
             }
 
             drawPledgedChip(ctx, width - 150, height - 100, timestamp);
-            
-            if (madeByImg.complete && madeByImg.naturalWidth > 0) {
-                ctx.save();
-                ctx.globalAlpha = 0.6;
-                const madeByWidth = 200;
-                const madeByHeight = (madeByImg.naturalHeight / madeByImg.naturalWidth) * madeByWidth;
-                ctx.drawImage(madeByImg, 100, height - madeByHeight - 60, madeByWidth, madeByHeight);
-                ctx.restore();
-            }
         }
 
         function updateCard() {
