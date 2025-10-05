@@ -853,7 +853,7 @@
         }
 
         document.getElementById('nameInput').addEventListener('input', (e) => {
-            state.name = e.target.value || 'chiefmmorgs';
+            state.name = e.target.value || 'ritual';
             updateCard();
         });
 
@@ -890,7 +890,7 @@
 
         document.getElementById('resetLink').addEventListener('click', (e) => {
             e.preventDefault();
-            state.name = 'chiefmmorgs';
+            state.name = 'ritual';
             state.coreRole = 'ritualist';
             state.auraRole = 'harmonic';
             state.portfolio = 'Educator';
