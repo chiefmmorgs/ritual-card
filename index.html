@@ -366,12 +366,16 @@
 
         const ritualLogoImage = 'attached_assets/image_1759656540647.png';
         const madeByLogoImage = 'attached_assets/chiefmmorgs_extrabold_transparent_1759657966154.png';
+        const magePixelImage = 'attached_assets/image_1759666446461.png';
         
         const logoImg = new Image();
         logoImg.src = ritualLogoImage;
         
         const madeByImg = new Image();
         madeByImg.src = madeByLogoImage;
+        
+        const magePixelImg = new Image();
+        magePixelImg.src = magePixelImage;
 
         const canvas = document.getElementById('cardCanvas');
         const ctx = canvas.getContext('2d');
@@ -384,7 +388,8 @@
                 bgEnd: scheme.bgEnd,
                 textColor: scheme.textColor,
                 titleColor: scheme.titleColor,
-                isNodeRunner: core === 'node runner'
+                isNodeRunner: core === 'node runner',
+                isMage: core === 'mage'
             };
         }
 
@@ -540,6 +545,16 @@
 
             if (theme.isNodeRunner) {
                 drawNodeRunnerEffects(ctx, width, height, theme, timestamp);
+            }
+
+            if (theme.isMage && magePixelImg.complete && magePixelImg.naturalWidth > 0) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.6;
+                const pattern = ctx.createPattern(magePixelImg, 'repeat');
+                ctx.fillStyle = pattern;
+                ctx.fillRect(0, 0, width, height);
+                ctx.restore();
             }
 
             applyAuraTint(ctx, theme, width, height);
