@@ -349,9 +349,13 @@
         };
 
         const ritualLogoImage = 'attached_assets/image_1759656540647.png';
+        const madeByLogoImage = 'attached_assets/chiefmmorgs_extrabold_transparent_1759657966154.png';
         
         const logoImg = new Image();
         logoImg.src = ritualLogoImage;
+        
+        const madeByImg = new Image();
+        madeByImg.src = madeByLogoImage;
 
         const canvas = document.getElementById('cardCanvas');
         const ctx = canvas.getContext('2d');
@@ -576,6 +580,15 @@
             }
 
             drawPledgedChip(ctx, width - 150, height - 100, timestamp);
+            
+            if (madeByImg.complete && madeByImg.naturalWidth > 0) {
+                ctx.save();
+                ctx.globalAlpha = 0.6;
+                const madeByWidth = 200;
+                const madeByHeight = (madeByImg.naturalHeight / madeByImg.naturalWidth) * madeByWidth;
+                ctx.drawImage(madeByImg, 100, height - madeByHeight - 60, madeByWidth, madeByHeight);
+                ctx.restore();
+            }
         }
 
         function updateCard() {
