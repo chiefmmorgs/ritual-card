@@ -389,7 +389,8 @@
                 textColor: scheme.textColor,
                 titleColor: scheme.titleColor,
                 isNodeRunner: core === 'node runner',
-                isMage: core === 'mage'
+                isMage: core === 'mage',
+                isRitualist: core === 'ritualist'
             };
         }
 
@@ -497,6 +498,55 @@
             ctx.globalAlpha = 1;
         }
 
+        function drawRitualistEffects(ctx, width, height, theme, timestamp = 0) {
+            const discordChannels = [
+                '📢 | announcements',
+                '🎊 | events',
+                '📜 | rules',
+                '',
+                'Blessings of Syn',
+                '🔷 | 21-day-announcements',
+                '🔷 | pledge',
+                '🔷 | ♦♦',
+                '🔷 | prompt-a-palooza',
+                '',
+                'Ritual Community',
+                '😊 | gritual',
+                '🤝 | ascension',
+                '💬 | community',
+                '📦 | contributions',
+                '🙏 | confessions',
+                '😂 | memes',
+                '🎨 | vestibule',
+                '🚩 | report',
+                '😷 | rank'
+            ];
+
+            ctx.save();
+            ctx.font = '22px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.globalAlpha = 0.12;
+            
+            const lineHeight = 35;
+            const startY = 80;
+            const startX = 80;
+            
+            discordChannels.forEach((channel, index) => {
+                const y = startY + (index * lineHeight);
+                if (channel === '' || channel === 'Blessings of Syn' || channel === 'Ritual Community') {
+                    ctx.font = 'bold 22px sans-serif';
+                    ctx.fillStyle = theme.titleColor;
+                } else {
+                    ctx.font = '22px sans-serif';
+                    ctx.fillStyle = '#ffffff';
+                }
+                ctx.fillText(channel, startX, y);
+            });
+            
+            ctx.restore();
+        }
+
         function drawAvatar(ctx, x, y, radius, avatar, theme) {
             ctx.save();
             ctx.beginPath();
@@ -584,6 +634,10 @@
 
             if (theme.isNodeRunner) {
                 drawNodeRunnerEffects(ctx, width, height, theme, timestamp);
+            }
+
+            if (theme.isRitualist) {
+                drawRitualistEffects(ctx, width, height, theme, timestamp);
             }
 
             if (theme.isMage && magePixelImg.complete && magePixelImg.naturalWidth > 0) {
