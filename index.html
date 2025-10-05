@@ -428,6 +428,45 @@
         }
 
         function drawNodeRunnerEffects(ctx, width, height, theme, timestamp = 0) {
+            const terminalLines = [
+                'Estimated total gas used for script: 863268',
+                'Estimated amount required: 0.000038368728380808 ETH',
+                '============================',
+                '##### base',
+                '✅ [Success]Hash: 0xa514b85f8b3e7db7e21b97e4df8db2b3ae9f7ecec1ea4279ea7aadreb5a8ad5',
+                'Contract Address: 0xC115fe0Ba97B66eB482B5d27e60a90a0Dc119e8e',
+                'Block: 15712564',
+                'Paid: 0.000015120927755424 ETH (664253 gas * 0.022763808 gwei)',
+                '✅ Sequence #1 on base | Total Paid: 0.000015120927755424 ETH',
+                '============================',
+                'ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.',
+                'Transactions saved to: /root/projects/hello-world/contracts',
+                'make[1]: Leaving directory \'/root/projects/hello-world/contracts\''
+            ];
+
+            ctx.save();
+            ctx.font = '20px monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.globalAlpha = 0.15;
+            
+            const lineHeight = 32;
+            const startY = 100;
+            
+            terminalLines.forEach((line, index) => {
+                const y = startY + (index * lineHeight);
+                if (line.includes('✅') || line.includes('Success')) {
+                    ctx.fillStyle = '#00ff00';
+                } else if (line.includes('Hash:') || line.includes('Contract')) {
+                    ctx.fillStyle = theme.textColor;
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                }
+                ctx.fillText(line, 120, y);
+            });
+            
+            ctx.restore();
+
             ctx.strokeStyle = '#1B2026';
             ctx.lineWidth = 2;
             ctx.globalAlpha = 0.3;
