@@ -318,19 +318,31 @@
             avatar: null
         };
 
-        const palettes = {
-            mage: { start: '#6C42FF', end: '#FF3FD1' },
-            ritualist: { start: '#DADADA', end: '#FFFFFF', accent: '#FFB347' },
-            'ritualist ascendant': { start: '#9AD8FF', end: '#FF8EE3' },
-            'node runner': { start: '#00D1FF', end: '#6A5CFF', grid: '#1B2026', hud: '#8FA6B8' },
-            limbo: { start: '#4A4A5E', end: '#1A1A2E' }
-        };
-
-        const auraTints = {
-            initiate: { colors: ['#9AA3AD'], opacity: 0.18, blend: 'soft-light' },
-            blessed: { colors: ['#FFD166', '#FFF7E6'], opacity: 0.28, blend: 'soft-light', bloom: true },
-            cursed: { colors: ['#00FF95', '#7A2DFF'], opacity: 0.42, blend: 'color-burn', vignette: true },
-            harmonic: { colors: ['#66E3FF', '#BD7CFF'], opacity: 0.34, blend: 'screen', rgbSplit: true }
+        const colorSchemes = {
+            'mage-harmonic': { bgStart: '#004D40', bgEnd: '#00251A', textColor: '#5CDB95', titleColor: '#7FE3AD' },
+            'mage-cursed': { bgStart: '#4A2C2A', bgEnd: '#1A0F0E', textColor: '#D9774A', titleColor: '#C8A882' },
+            'mage-blessed': { bgStart: '#3D2F5B', bgEnd: '#1A132B', textColor: '#9B7EDE', titleColor: '#B8A1E8' },
+            'mage-initiate': { bgStart: '#1F3A3A', bgEnd: '#0A1515', textColor: '#6B9D9D', titleColor: '#8FBEBE' },
+            
+            'ritualist-harmonic': { bgStart: '#1A3B5C', bgEnd: '#0D1E2E', textColor: '#5A9FD4', titleColor: '#7BB8E8' },
+            'ritualist-cursed': { bgStart: '#4A2C2A', bgEnd: '#1A0F0E', textColor: '#D9774A', titleColor: '#C8A882' },
+            'ritualist-blessed': { bgStart: '#4A3B2A', bgEnd: '#1F1A0F', textColor: '#D9A74A', titleColor: '#E8C87B' },
+            'ritualist-initiate': { bgStart: '#2A2F3A', bgEnd: '#12151A', textColor: '#8A9AA8', titleColor: '#A8B8C6' },
+            
+            'ritualist ascendant-harmonic': { bgStart: '#2A1A4A', bgEnd: '#150D25', textColor: '#A77ED9', titleColor: '#C89FE8' },
+            'ritualist ascendant-cursed': { bgStart: '#4A2A1A', bgEnd: '#25150D', textColor: '#D9A77E', titleColor: '#E8C89F' },
+            'ritualist ascendant-blessed': { bgStart: '#4A3A1A', bgEnd: '#251F0D', textColor: '#D9B77E', titleColor: '#E8D19F' },
+            'ritualist ascendant-initiate': { bgStart: '#2A2F3A', bgEnd: '#12151A', textColor: '#8A9AA8', titleColor: '#A8B8C6' },
+            
+            'node runner-harmonic': { bgStart: '#00394D', bgEnd: '#001A25', textColor: '#00C9FF', titleColor: '#5FD8FF' },
+            'node runner-cursed': { bgStart: '#4D2A00', bgEnd: '#251500', textColor: '#FF8C00', titleColor: '#FFB347' },
+            'node runner-blessed': { bgStart: '#3A2F4A', bgEnd: '#1A152A', textColor: '#8FA6D9', titleColor: '#B0C4E8' },
+            'node runner-initiate': { bgStart: '#1A2A3A', bgEnd: '#0D151A', textColor: '#5A8AA8', titleColor: '#7BA8C6' },
+            
+            'limbo-harmonic': { bgStart: '#2A2F4A', bgEnd: '#15182A', textColor: '#7A8FD9', titleColor: '#9BAAE8' },
+            'limbo-cursed': { bgStart: '#4A2A2F', bgEnd: '#2A1518', textColor: '#D97A8F', titleColor: '#E89BAA' },
+            'limbo-blessed': { bgStart: '#4A3A2F', bgEnd: '#2A1F18', textColor: '#D9B78F', titleColor: '#E8D1AA' },
+            'limbo-initiate': { bgStart: '#2F2F3A', bgEnd: '#18181A', textColor: '#8F8FA8', titleColor: '#AAAAC6' }
         };
 
         const ritualLogoSVG = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M100 40 L120 60 L100 80 L80 60 Z'/%3E%3Cpath d='M60 80 L80 100 L60 120 L40 100 Z'/%3E%3Cpath d='M140 80 L160 100 L140 120 L120 100 Z'/%3E%3Cpath d='M100 120 L120 140 L100 160 L80 140 Z'/%3E%3Cpath d='M80 60 L100 80 L80 100 L60 80 Z'/%3E%3Cpath d='M120 60 L140 80 L120 100 L100 80 Z'/%3E%3Cpath d='M80 100 L100 120 L80 140 L60 120 Z'/%3E%3Cpath d='M120 100 L140 120 L120 140 L100 120 Z'/%3E%3C/g%3E%3C/svg%3E`;
@@ -339,25 +351,27 @@
         const ctx = canvas.getContext('2d');
 
         function resolveTheme(core, aura) {
-            const palette = palettes[core];
-            const tint = auraTints[aura];
+            const key = `${core}-${aura}`;
+            const scheme = colorSchemes[key] || colorSchemes['ritualist-harmonic'];
             return {
-                palette,
-                tint,
+                bgStart: scheme.bgStart,
+                bgEnd: scheme.bgEnd,
+                textColor: scheme.textColor,
+                titleColor: scheme.titleColor,
                 isNodeRunner: core === 'node runner'
             };
         }
 
         function drawPlasmaBackground(ctx, theme, width, height, timestamp = 0) {
             const gradient = ctx.createLinearGradient(0, 0, width, height);
-            gradient.addColorStop(0, theme.palette.start);
-            gradient.addColorStop(1, theme.palette.end);
+            gradient.addColorStop(0, theme.bgStart);
+            gradient.addColorStop(1, theme.bgEnd);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, width, height);
 
             const waveGradient = ctx.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, width * 0.6);
-            waveGradient.addColorStop(0, 'rgba(255,255,255,0.2)');
-            waveGradient.addColorStop(0.5, 'rgba(255,255,255,0.05)');
+            waveGradient.addColorStop(0, `${theme.textColor}40`);
+            waveGradient.addColorStop(0.5, `${theme.textColor}10`);
             waveGradient.addColorStop(1, 'rgba(0,0,0,0.3)');
             ctx.fillStyle = waveGradient;
             ctx.fillRect(0, 0, width, height);
@@ -366,46 +380,24 @@
                 const offset = (timestamp * 0.0005 + i * 0.3) % 1;
                 const waveY = height * 0.5 + Math.sin(offset * Math.PI * 2) * height * 0.2;
                 const waveGrad = ctx.createLinearGradient(0, waveY - 100, 0, waveY + 100);
-                waveGrad.addColorStop(0, 'rgba(255,255,255,0)');
-                waveGrad.addColorStop(0.5, `rgba(255,255,255,${0.1 - i * 0.03})`);
-                waveGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                waveGrad.addColorStop(0, `${theme.textColor}00`);
+                waveGrad.addColorStop(0.5, `${theme.textColor}30`);
+                waveGrad.addColorStop(1, `${theme.textColor}00`);
                 ctx.fillStyle = waveGrad;
                 ctx.fillRect(0, waveY - 100, width, 200);
             }
         }
 
         function applyAuraTint(ctx, theme, width, height) {
-            if (!theme.tint) return;
-
-            const tint = theme.tint;
-            ctx.globalAlpha = tint.opacity;
-            ctx.globalCompositeOperation = tint.blend;
-
-            if (tint.colors.length === 1) {
-                ctx.fillStyle = tint.colors[0];
-                ctx.fillRect(0, 0, width, height);
-            } else {
-                const grad = ctx.createLinearGradient(0, 0, width, height);
-                grad.addColorStop(0, tint.colors[0]);
-                grad.addColorStop(1, tint.colors[1]);
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, width, height);
-            }
-
-            ctx.globalAlpha = 1;
-            ctx.globalCompositeOperation = 'source-over';
-
-            if (tint.vignette) {
-                const vigGrad = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width * 0.7);
-                vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
-                vigGrad.addColorStop(1, 'rgba(0,0,0,0.6)');
-                ctx.fillStyle = vigGrad;
-                ctx.fillRect(0, 0, width, height);
-            }
+            const vigGrad = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width * 0.7);
+            vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+            vigGrad.addColorStop(1, 'rgba(0,0,0,0.4)');
+            ctx.fillStyle = vigGrad;
+            ctx.fillRect(0, 0, width, height);
         }
 
-        function drawNodeRunnerEffects(ctx, width, height, timestamp = 0) {
-            ctx.strokeStyle = palettes['node runner'].grid;
+        function drawNodeRunnerEffects(ctx, width, height, theme, timestamp = 0) {
+            ctx.strokeStyle = '#1B2026';
             ctx.lineWidth = 2;
             ctx.globalAlpha = 0.3;
 
@@ -426,9 +418,9 @@
             const scanlineY = ((timestamp * 0.0003) % 1) * height;
             ctx.globalAlpha = 0.06;
             const scanGrad = ctx.createLinearGradient(0, scanlineY - 40, 0, scanlineY + 40);
-            scanGrad.addColorStop(0, 'rgba(0,209,255,0)');
-            scanGrad.addColorStop(0.5, 'rgba(0,209,255,1)');
-            scanGrad.addColorStop(1, 'rgba(0,209,255,0)');
+            scanGrad.addColorStop(0, `${theme.textColor}00`);
+            scanGrad.addColorStop(0.5, `${theme.textColor}FF`);
+            scanGrad.addColorStop(1, `${theme.textColor}00`);
             ctx.fillStyle = scanGrad;
             ctx.fillRect(0, scanlineY - 40, width, 80);
 
@@ -520,13 +512,19 @@
             drawPlasmaBackground(ctx, theme, width, height, timestamp);
 
             if (theme.isNodeRunner) {
-                drawNodeRunnerEffects(ctx, width, height, timestamp);
+                drawNodeRunnerEffects(ctx, width, height, theme, timestamp);
             }
 
             applyAuraTint(ctx, theme, width, height);
 
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
             ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = theme.titleColor;
+            ctx.font = 'bold 64px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('RITUALIST ID CARD', 100, 60);
 
             const logoImg = new Image();
             logoImg.onload = () => {
@@ -556,11 +554,11 @@
             ctx.fillText(`Date of Join  ${state.dateISO}`, textX, textY + 140);
 
             const roleText = `${state.coreRole} - ${state.auraRole}`;
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = theme.textColor;
             ctx.font = '48px sans-serif';
             ctx.fillText(roleText, textX, textY + 230);
 
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = theme.textColor;
             ctx.font = '42px sans-serif';
             ctx.fillText('pledged', textX, textY + 300);
 
