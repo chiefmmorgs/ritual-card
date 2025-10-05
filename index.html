@@ -390,7 +390,8 @@
                 titleColor: scheme.titleColor,
                 isNodeRunner: core === 'node runner',
                 isMage: core === 'mage',
-                isRitualist: core === 'ritualist'
+                isRitualist: core === 'ritualist',
+                isRitualistAscendant: core === 'ritualist ascendant'
             };
         }
 
@@ -547,6 +548,67 @@
             ctx.restore();
         }
 
+        function drawRitualistAscendantEffects(ctx, width, height, theme, timestamp = 0) {
+            ctx.save();
+            ctx.globalAlpha = 0.1;
+            
+            const ranks = [
+                { rank: 'RANK', level: 10, xp: '923 / 1.10K XP', progress: 0.84 },
+                { rank: 'RANK', level: 8, xp: '645 / 890 XP', progress: 0.72 },
+                { rank: 'RANK', level: 15, xp: '1.8K / 2.3K XP', progress: 0.78 },
+                { rank: 'RANK', level: 12, xp: '1.2K / 1.6K XP', progress: 0.75 },
+                { rank: 'RANK', level: 7, xp: '512 / 720 XP', progress: 0.71 },
+                { rank: 'RANK', level: 20, xp: '3.1K / 4.0K XP', progress: 0.78 }
+            ];
+
+            const positions = [
+                { x: 100, y: 120 },
+                { x: 1400, y: 180 },
+                { x: 200, y: 480 },
+                { x: 1500, y: 540 },
+                { x: 800, y: 700 },
+                { x: 400, y: 300 }
+            ];
+
+            ranks.forEach((rankData, index) => {
+                const pos = positions[index];
+                
+                ctx.font = '32px sans-serif';
+                ctx.fillStyle = '#888888';
+                ctx.textAlign = 'left';
+                ctx.fillText(rankData.rank, pos.x, pos.y);
+                
+                ctx.font = 'bold 56px sans-serif';
+                ctx.fillStyle = theme.textColor;
+                ctx.textAlign = 'right';
+                ctx.fillText(`LEVEL ${rankData.level}`, pos.x + 550, pos.y + 10);
+                
+                ctx.font = '28px sans-serif';
+                ctx.fillStyle = '#999999';
+                ctx.textAlign = 'right';
+                ctx.fillText(rankData.xp, pos.x + 550, pos.y + 75);
+                
+                const barWidth = 460;
+                const barHeight = 30;
+                const barX = pos.x + 70;
+                const barY = pos.y + 95;
+                const barRadius = 15;
+                
+                ctx.fillStyle = '#3A3A3A';
+                ctx.beginPath();
+                ctx.roundRect(barX, barY, barWidth, barHeight, barRadius);
+                ctx.fill();
+                
+                const fillWidth = barWidth * rankData.progress;
+                ctx.fillStyle = theme.titleColor;
+                ctx.beginPath();
+                ctx.roundRect(barX, barY, fillWidth, barHeight, barRadius);
+                ctx.fill();
+            });
+            
+            ctx.restore();
+        }
+
         function drawAvatar(ctx, x, y, radius, avatar, theme) {
             ctx.save();
             ctx.beginPath();
@@ -638,6 +700,10 @@
 
             if (theme.isRitualist) {
                 drawRitualistEffects(ctx, width, height, theme, timestamp);
+            }
+
+            if (theme.isRitualistAscendant) {
+                drawRitualistAscendantEffects(ctx, width, height, theme, timestamp);
             }
 
             if (theme.isMage && magePixelImg.complete && magePixelImg.naturalWidth > 0) {
