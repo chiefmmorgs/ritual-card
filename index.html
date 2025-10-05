@@ -427,7 +427,7 @@
             ctx.globalAlpha = 1;
         }
 
-        function drawAvatar(ctx, x, y, radius, avatar) {
+        function drawAvatar(ctx, x, y, radius, avatar, theme) {
             ctx.save();
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -453,21 +453,22 @@
 
             ctx.restore();
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            const ringColor = theme.textColor;
+            ctx.strokeStyle = `${ringColor}4D`;
             ctx.lineWidth = 6;
             ctx.beginPath();
             ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
             ctx.stroke();
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.strokeStyle = `${ringColor}33`;
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(x, y, radius + 12, 0, Math.PI * 2);
             ctx.stroke();
 
-            ctx.shadowColor = 'rgba(255,255,255,0.4)';
+            ctx.shadowColor = `${ringColor}66`;
             ctx.shadowBlur = 20;
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.strokeStyle = `${ringColor}4D`;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -538,7 +539,7 @@
             const avatarX = 350;
             const avatarY = height / 2;
             const avatarRadius = 140;
-            drawAvatar(ctx, avatarX, avatarY, avatarRadius, state.avatar);
+            drawAvatar(ctx, avatarX, avatarY, avatarRadius, state.avatar, theme);
 
             const textX = 650;
             const textY = 200;
