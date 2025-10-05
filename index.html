@@ -258,7 +258,7 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="nameInput">Name</label>
-                    <input type="text" id="nameInput" placeholder="e.g. Elliott Yu" value="Elliottyu">
+                    <input type="text" id="nameInput" placeholder="e.g. chiefmmorgs" value="chiefmmorgs">
                 </div>
 
                 <div class="form-group">
@@ -312,7 +312,7 @@
 
     <script>
         const state = {
-            name: 'Elliottyu',
+            name: 'chiefmmorgs',
             coreRole: 'ritualist',
             auraRole: 'harmonic',
             pledged: true,
@@ -636,7 +636,7 @@
         }
 
         document.getElementById('nameInput').addEventListener('input', (e) => {
-            state.name = e.target.value || 'Elliottyu';
+            state.name = e.target.value || 'chiefmmorgs';
             updateCard();
         });
 
@@ -673,7 +673,7 @@
 
         document.getElementById('resetLink').addEventListener('click', (e) => {
             e.preventDefault();
-            state.name = 'Elliottyu';
+            state.name = 'chiefmmorgs';
             state.coreRole = 'ritualist';
             state.auraRole = 'harmonic';
             state.portfolio = 'Educator';
