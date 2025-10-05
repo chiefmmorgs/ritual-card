@@ -349,6 +349,9 @@
         };
 
         const ritualLogoImage = 'attached_assets/image_1759656540647.png';
+        
+        const logoImg = new Image();
+        logoImg.src = ritualLogoImage;
 
         const canvas = document.getElementById('cardCanvas');
         const ctx = canvas.getContext('2d');
@@ -530,16 +533,14 @@
             ctx.textBaseline = 'top';
             ctx.fillText('RITUALIST ID CARD', 100, 60);
 
-            const logoImg = new Image();
-            logoImg.onload = () => {
+            if (logoImg.complete && logoImg.naturalWidth > 0) {
                 ctx.save();
                 ctx.globalCompositeOperation = 'soft-light';
                 ctx.globalAlpha = 0.3;
                 const logoSize = 280;
                 ctx.drawImage(logoImg, width - logoSize - 120, height / 2 - logoSize / 2, logoSize, logoSize);
                 ctx.restore();
-            };
-            logoImg.src = ritualLogoImage;
+            }
 
             const avatarX = 350;
             const avatarY = height / 2;
