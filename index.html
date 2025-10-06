@@ -326,6 +326,16 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="strikesSelect">Strikes</label>
+                    <select id="strikesSelect">
+                        <option value="0">No Strikes</option>
+                        <option value="1">1 Strike</option>
+                        <option value="2">2 Strikes</option>
+                        <option value="3">3 Strikes (NPC)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="photoInput">Upload Photo</label>
                     <input type="file" id="photoInput" accept="image/*">
                 </div>
@@ -355,7 +365,8 @@
             pledged: true,
             portfolio: 'Educator',
             dateISO: new Date().toISOString().split('T')[0],
-            avatar: null
+            avatar: null,
+            strikes: 0
         };
 
         const colorSchemes = {
@@ -707,6 +718,29 @@
             ctx.restore();
         }
 
+        function drawNPCTag(ctx, x, y, timestamp = 0) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            ctx.fillStyle = '#2C2C2C';
+            ctx.beginPath();
+            ctx.roundRect(-65, -30, 130, 60, 8);
+            ctx.fill();
+
+            ctx.fillStyle = '#FF8C42';
+            ctx.beginPath();
+            ctx.arc(-35, 0, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 28px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('NPC', -15, 0);
+
+            ctx.restore();
+        }
+
         function renderCard(ctx, state, theme, timestamp = Date.now()) {
             const width = canvas.width;
             const height = canvas.height;
@@ -791,6 +825,10 @@
             }
 
             drawPledgedChip(ctx, width - 150, height - 100, timestamp);
+            
+            if (state.strikes === 3) {
+                drawNPCTag(ctx, width - 150, height - 220, timestamp);
+            }
         }
 
         function updateCard() {
@@ -877,6 +915,11 @@
             updateCard();
         });
 
+        document.getElementById('strikesSelect').addEventListener('change', (e) => {
+            state.strikes = parseInt(e.target.value);
+            updateCard();
+        });
+
         document.getElementById('photoInput').addEventListener('change', async (e) => {
             if (e.target.files && e.target.files[0]) {
                 state.avatar = await loadAvatar(e.target.files[0]);
@@ -896,12 +939,14 @@
             state.portfolio = 'Educator';
             state.dateISO = new Date().toISOString().split('T')[0];
             state.avatar = null;
+            state.strikes = 0;
 
             document.getElementById('nameInput').value = state.name;
             document.getElementById('coreRoleSelect').value = state.coreRole;
             document.getElementById('auraRoleSelect').value = state.auraRole;
             document.getElementById('portfolioInput').value = state.portfolio;
             document.getElementById('dateInput').value = state.dateISO;
+            document.getElementById('strikesSelect').value = state.strikes;
             document.getElementById('photoInput').value = '';
 
             updateCard();
